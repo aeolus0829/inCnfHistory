@@ -129,29 +129,11 @@ namespace defaultProject
                         dt.Rows.Add(dr);
                     }
 
-                    switch(rblDept.SelectedValue)
-                        {
-                        case "0":  //製造以外刪掉 A00? U00?
-                            dt.Rows.Cast<DataRow>().Where(r => 
-                            ( ! r.ItemArray[12].ToString().Contains("A"))||
-                            (! r.ItemArray[12].ToString().Contains("U"))
-                            ).ToList().ForEach(r => r.Delete());
-                            break;
-                        case "1":  //出貨以外刪掉 P00?
-                            dt.Rows.Cast<DataRow>().Where(r => !r.ItemArray[12].ToString().Contains("P")).ToList().ForEach(r => r.Delete());
-                            break;
-                        case "2":  //加工以外刪掉 L00? S??? B???
-                            dt.Rows.Cast<DataRow>().Where(r =>
-                            (!r.ItemArray[12].ToString().Contains("A")) ||
-                            (!r.ItemArray[12].ToString().Contains("U")) ||
-                            (!r.ItemArray[12].ToString().Contains("P"))
-                            ).ToList().ForEach(r => r.Delete());
-                            break;
-                        }
+                    DataTable dtRmData = removeRows(dt);
 
-                    dt.AcceptChanges();
+                    dtRmData.AcceptChanges();
 
-                    gvData.DataSource = dt;
+                    gvData.DataSource = dtRmData;
                     gvData.DataBind();
                     btnConvert.Visible = true;
                 }
@@ -166,6 +148,30 @@ namespace defaultProject
             }
         }
 
+        private DataTable removeRows(DataTable dt)
+        {
+            switch (rblDept.SelectedValue)
+            {
+                case "0":  //製造以外刪掉，留A00? U00?
+                    dt.Rows.Cast<DataRow>().Where(r =>
+                    (!r.ItemArray[12].ToString().Contains("A")) ||
+                    (!r.ItemArray[12].ToString().Contains("U"))
+                    ).ToList().ForEach(r => r.Delete());
+                    break;
+                case "1":  //出貨以外刪掉，留P00?
+                    dt.Rows.Cast<DataRow>().Where(r =>
+                    !r.ItemArray[12].ToString().Contains("P")).ToList().ForEach(r => r.Delete());
+                    break;
+                case "2":  //加工以外刪掉，留L00? S??? B???
+                    dt.Rows.Cast<DataRow>().Where(r =>
+                    (r.ItemArray[12].ToString().Contains("A")) ||
+                    (r.ItemArray[12].ToString().Contains("U")) ||
+                    (r.ItemArray[12].ToString().Contains("P"))
+                    ).ToList().ForEach(r => r.Delete());
+                    break;
+            }
+            return dt;
+        }
 
         protected void btnClr_Click(object sender, EventArgs e)
         {
